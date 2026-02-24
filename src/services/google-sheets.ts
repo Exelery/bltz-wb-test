@@ -1,8 +1,7 @@
+import { appConfig } from "#config/app.config.js";
 import env from "#config/env/env.js";
 import knex from "#postgres/knex.js";
 import { google } from "googleapis";
-
-const SHEET_NAME = "stocks_coefs";
 
 function getAuth() {
     const raw = env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -12,7 +11,7 @@ function getAuth() {
     const key = JSON.parse(raw) as { client_email?: string; private_key?: string };
     const auth = new google.auth.GoogleAuth({
         credentials: key,
-        scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+        scopes: [...appConfig.googleSheets.scopes],
     });
     return auth;
 }
@@ -54,7 +53,7 @@ export async function updateSpreadsheet(spreadsheetId: string): Promise<void> {
     const { data: spreadsheet } = await sheets.spreadsheets.get({
         spreadsheetId,
     });
-    const sheet = spreadsheet.sheets?.find((s) => s.properties?.title === SHEET_NAME);
+    const sheet = spreadsheet.sheets?.find((s) => s.properties?.title === appConfig.googleSheets.tariffsSheetName);
     let sheetId = sheet?.properties?.sheetId;
 
     if (sheetId == null) {
@@ -64,7 +63,7 @@ export async function updateSpreadsheet(spreadsheetId: string): Promise<void> {
                 requests: [
                     {
                         addSheet: {
-                            properties: { title: SHEET_NAME },
+                            properties: { title: appConfig.googleSheets.tariffsSheetName },
                         },
                     },
                 ],
@@ -75,7 +74,7 @@ export async function updateSpreadsheet(spreadsheetId: string): Promise<void> {
 
     await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: `'${SHEET_NAME}'!A:Z`,
+        range: `'${appConfig.googleSheets.tariffsSheetName}'!A:Z`,
         valueInputOption: "USER_ENTERED",
         requestBody: { values: rows },
     });

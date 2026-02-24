@@ -1,9 +1,8 @@
+import { appConfig } from "#config/app.config.js";
 import env from "#config/env/env.js";
 import knex from "#postgres/knex.js";
 import type { BoxTariffRow } from "#types/wb-tariffs.js";
 import type { WbBoxTariffsResponse } from "#types/wb-tariffs.js";
-
-const WB_BOX_TARIFFS_URL = "https://common-api.wildberries.ru/api/v1/tariffs/box";
 
 function parseDecimal(s: string | undefined): number | null {
     if (s == null || s === "") return null;
@@ -18,7 +17,7 @@ export async function fetchBoxTariffs(date: string): Promise<WbBoxTariffsRespons
         console.warn("WB_API_TOKEN not set, skipping tariffs fetch");
         return null;
     }
-    const url = `${WB_BOX_TARIFFS_URL}?date=${date}`;
+    const url = `${appConfig.wb.tariffsBoxUrl}?date=${date}`;
     const res = await fetch(url, {
         headers: { Authorization: token },
     });
