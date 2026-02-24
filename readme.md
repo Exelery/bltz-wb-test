@@ -10,15 +10,19 @@ The service does two things:
 - Docker and Docker Compose
 - (Optional) WB API token and Google service account — for tariff fetching and Sheets export
 
-## One-command run
+## Запуск одной командой
+
+Приложение запускается **одной командой**, без копирования `.env` и прочих шагов:
 
 ```bash
 docker compose up --build
 ```
 
-No extra setup: if `.env` is missing, defaults are used (user/password/database = `postgres`, port 5432). The `postgres` and `app` containers start; on startup the app runs migrations and seeds.
+(При следующих запусках достаточно `docker compose up`.)
 
-Without WB or Google tokens the app still starts; tariff fetching and Sheets export are skipped until you set `WB_API_TOKEN` and `GOOGLE_SERVICE_ACCOUNT_JSON` in `.env` (optional).
+Если файла `.env` нет, в `compose.yaml` используются значения по умолчанию: пользователь, пароль и база — **postgres**, порт 5432. Контейнеры `postgres` и `app` стартуют; при старте приложение выполняет миграции и сиды.
+
+Без токенов WB и Google приложение тоже запускается; загрузка тарифов и выгрузка в таблицы отключены до указания `WB_API_TOKEN` и `GOOGLE_SERVICE_ACCOUNT_JSON` (по желанию).
 
 ## Configuration
 
@@ -102,4 +106,6 @@ Grant the spreadsheet edit access to the service account email. On startup and e
 
 - Application code: `src/` (config, migrations, seeds, WB and Google Sheets services, scheduler).
 - Docker: `compose.yaml`, `Dockerfile`.
-- Config template (no secrets): `.env.example`.
+- Config template (no secrets): `.env.example` — заготовка без чувствительных данных; для БД по умолчанию user/password/database = postgres.
+
+Соответствие ТЗ: репозиторий содержит код приложения, compose-файл и readme с инструкцией; приложение поднимается одной командой `docker compose up --build` без дополнительных действий; к БД — knex; в конфигурации по умолчанию пользователь, пароль и БД — postgres.
